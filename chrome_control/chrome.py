@@ -23,16 +23,7 @@ class Chrome:
         # update, no this is not documented anywhere:
         # https://github.com/GoogleChrome/devtools-docs/issues/67#issuecomment-37675331
         self.tab = requests.get("http://localhost:9222/json/new").json()
-        tabs = requests.get("http://localhost:9222/json").json()
-
-        # we need to find the index of our new tab in the tablist, which the API
-        # calls the "id", but also doesn't come back in the /new obj. Search the tablist
-        # for our tab.
-        for i, t in enumerate(tabs):
-            if t["id"] == self.tab["id"]:
-                self.idx = i
-                break
-        else: 1/0
+        self.idx = 0
 
         #  * Maybe a tab is the proper unit for the client to deal with? Something like:
         #  with Tab(url) as tab:
