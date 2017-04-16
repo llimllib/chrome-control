@@ -11,9 +11,17 @@ class ObjectEncoder(json.JSONEncoder):
         return {key: getattr(obj, key) for key in attrs if getattr(obj, key) is not None}
 
 class Chrome:
-    def __init__(self):
+    def __init__(self, debug=1):
+        self.debug = debug
+
         # is this documented anywhere? I had to find this from reading node code
         # https://github.com/cyrus-and/chrome-remote-interface/blob/2a85a87574053f4ef48d17ac1ac03b7513310336/lib/devtools.js#L65
+        #
+        # there appears to be an endpoint that's equivalent to /json/new, at:
+        # https://chromedevtools.github.io/debugger-protocol-viewer/tot/Target/#method-createTarget
+        #
+        # update, no this is not documented anywhere:
+        # https://github.com/GoogleChrome/devtools-docs/issues/67#issuecomment-37675331
         self.tab = requests.get("http://localhost:9222/json/new").json()
         tabs = requests.get("http://localhost:9222/json").json()
 
@@ -34,16 +42,18 @@ class Chrome:
 
     def do(self, cmd: ChromeCommand):
         method = f'{cmd.__module__}.{cmd.__class__.__name__}'
-        print("sent: ", json.dumps({
+
+        msg = {
             "id": self.idx,
             "method": method,
             "params": cmd
-        }, cls=ObjectEncoder))
-        self.ws.send(json.dumps({
-            "id": self.idx,
-            "method": method,
-            "params": cmd,
-        }, cls=ObjectEncoder))
+        }
+        if self.debug:
+            print("sent: ", json.dumps(msg, cls=ObjectEncoder))
+        self.ws.send(json.dumps(msg, cls=ObjectEncoder))
+
         o = json.loads(self.ws.recv())
-        print("rcvd: ", o)
+        if self.debug:
+            print("rcvd: ", o)
+
         return o
