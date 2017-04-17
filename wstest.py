@@ -3,43 +3,36 @@ import json
 import requests
 import websockets
 
-# enable debugging
+# enable websockets debugging
 import logging
 logger = logging.getLogger('websockets')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-async def enable(ws, idx):
-    cmd = json.dumps({"id": idx, "method": "Page.enable", "params": {}})
-    await ws.send(cmd)
-    return await ws.recv()
+# enable asyncio debugging
+logging.getLogger('asyncio').setLevel(logging.DEBUG)
 
-async def go(ws, idx):
+async def server(ws):
+    while 1:
+        res = await ws.recv()
+
+async def client(ws):
+    idx = 0
+    cmd = json.dumps({"id": idx, "method": "Page.enable", "params": {}})
+    res = await ws.send(cmd)
+
+    idx += 1
     cmd = json.dumps({
         "id": idx, "method": "Page.navigate",
         "params": {"url": "http://adhocteam.us/our-team"}})
-    await ws.send(cmd)
-    return await ws.recv()
+    res = await ws.send(cmd)
 
-async def exec_script(ws, idx):
+    idx += 1
     script = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
     cmd = json.dumps({
         "id": idx, "method": "Runtime.evaluate",
         "params": {"expression": script, "returnByValue": True}})
-    return await ws.send(cmd)
-
-async def produce():
-    cmd = json.dumps({"id": idx, "method": "Page.enable", "params": {}})
-    yield cmd
-    cmd = json.dumps({
-        "id": idx, "method": "Page.navigate",
-        "params": {"url": "http://adhocteam.us/our-team"}})
-    yield cmd
-    script = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
-    cmd = json.dumps({
-        "id": idx, "method": "Runtime.evaluate",
-        "params": {"expression": script, "returnByValue": True}})
-    return cmd
+    res = await ws.send(cmd)
 
 async def handler():
     tab = requests.get("http://localhost:9222/json/new").json()
@@ -52,18 +45,17 @@ async def handler():
     wsurl = tab['webSocketDebuggerUrl']
 
     async with websockets.connect(wsurl) as ws:
-        await enable(ws, idx)
-        idx += 1
-        await go(ws, idx)
-        idx += 1
+        client_task = asyncio.ensure_future(client(ws))
+        server_task = asyncio.ensure_future(server(ws))
         while 1:
-            res = json.loads(await ws.recv())
-            if res.get("method") == "Page.loadEventFired":
-                await exec_script(ws, idx)
-                idx += 1
+            pending = [client_task, server_task]
+            completed, pending = await asyncio.wait(
+                pending,
+                return_when=asyncio.FIRST_COMPLETED)
 
 event_loop = asyncio.get_event_loop()
 try:
     event_loop.run_until_complete(handler())
 finally:
+    print("closing event loop")
     event_loop.close()
