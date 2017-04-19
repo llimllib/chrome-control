@@ -1,17 +1,33 @@
+import asyncio
 import time
 
 from chrome_control import Chrome, Page, Runtime
 
-async with Chrome() as c:
-    await c.do(Page.enable())
-    await c.do(Page.navigate("http://adhocteam.us/our-team"))
+# enable websockets debugging
+import logging
+logger = logging.getLogger('websockets')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
-# if we don't wait for the page to load, then we can run the script too
-# early and get an empty array.
-#
-# TODO a great next step would be to figure out how to receive pageLoad
-#      event from Page and only run the command at that time
-time.sleep(2)
+# enable asyncio debugging
+logger = logging.getLogger('asyncio')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
-cmd = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
-c.do(Runtime.evaluate(cmd, returnByValue=True))
+async def test(tab):
+    # This should only be considered successful if Page.enable() has
+    # completed its round-trip to Chrome
+    await tab.do(Page.enable())
+    await tab.do(Page.navigate("http://adhocteam.us/our-team"))
+    await tab.wait(Page.loadEventFired)
+    script = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
+    await tab.do(Runtime.evaluate(script))
+    await tab.close()
+
+tab = chrome.Tab()
+event_loop = asyncio.get_event_loop()
+try:
+    event_loop.run_until_complete(tab.run(test))
+    print("done")
+finally:
+    event_loop.close()
