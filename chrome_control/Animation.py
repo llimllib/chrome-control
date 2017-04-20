@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import DOM
 
@@ -152,6 +152,33 @@ class resolveAnimation(ChromeCommand):
     def __init__(self, animationId: str):
         # Animation id.
         self.animationId = animationId
+
+
+
+class animationCreated(ChromeEvent):
+    """Event for each animation that has been created."""
+
+    def __init__(self, id: str):
+        # Id of the animation that was created.
+        self.id = id
+
+
+
+class animationStarted(ChromeEvent):
+    """Event for animation that has been started."""
+
+    def __init__(self, animation: "Animation"):
+        # Animation that was started.
+        self.animation = animation
+
+
+
+class animationCanceled(ChromeEvent):
+    """Event for when an animation has been cancelled."""
+
+    def __init__(self, id: str):
+        # Id of the animation that was cancelled.
+        self.id = id
 
 
 

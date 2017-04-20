@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 class ConsoleMessage:
@@ -34,4 +34,13 @@ class clearMessages(ChromeCommand):
     """Does nothing."""
 
     def __init__(self): pass
+
+class messageAdded(ChromeEvent):
+    """Issued when new console message is added."""
+
+    def __init__(self, message: "ConsoleMessage"):
+        # Console message that has been added.
+        self.message = message
+
+
 

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import DOM
 
@@ -145,6 +145,22 @@ class snapshotCommandLog(ChromeCommand):
     def __init__(self, snapshotId: "SnapshotId"):
         # The id of the layer snapshot.
         self.snapshotId = snapshotId
+
+
+
+class layerTreeDidChange(ChromeEvent):
+    def __init__(self, layers: List=None):
+        # Layer tree, absent if not in the comspositing mode.
+        self.layers = layers
+
+
+
+class layerPainted(ChromeEvent):
+    def __init__(self, layerId: "LayerId", clip: "DOM.Rect"):
+        # The id of the painted layer.
+        self.layerId = layerId
+        # Clip rectangle.
+        self.clip = clip
 
 
 

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Target
 
@@ -105,6 +105,24 @@ class dispatchSyncEvent(ChromeCommand):
         self.registrationId = registrationId
         self.tag = tag
         self.lastChance = lastChance
+
+
+
+class workerRegistrationUpdated(ChromeEvent):
+    def __init__(self, registrations: List):
+        self.registrations = registrations
+
+
+
+class workerVersionUpdated(ChromeEvent):
+    def __init__(self, versions: List):
+        self.versions = versions
+
+
+
+class workerErrorReported(ChromeEvent):
+    def __init__(self, errorMessage: "ServiceWorkerErrorMessage"):
+        self.errorMessage = errorMessage
 
 
 

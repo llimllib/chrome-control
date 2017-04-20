@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 # An internal certificate ID value.
@@ -52,4 +52,21 @@ class showCertificateViewer(ChromeCommand):
     """Displays native dialog with the certificate details."""
 
     def __init__(self): pass
+
+class securityStateChanged(ChromeEvent):
+    """The security state of the page changed."""
+
+    def __init__(self, securityState: "SecurityState", schemeIsCryptographic: bool, explanations: List, insecureContentStatus: "InsecureContentStatus", summary: str=None):
+        # Security state.
+        self.securityState = securityState
+        # True if the page was loaded over cryptographic transport such as HTTPS.
+        self.schemeIsCryptographic = schemeIsCryptographic
+        # List of explanations for the security state. If the overall security state is `insecure` or `warning`, at least one corresponding explanation should be included.
+        self.explanations = explanations
+        # Information about insecure content on the page.
+        self.insecureContentStatus = insecureContentStatus
+        # Overrides user-visible description of the state.
+        self.summary = summary
+
+
 

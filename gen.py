@@ -116,12 +116,30 @@ def command(cmd, domain):
 
 '''
 
+def event(evt, domain):
+    name = evt["name"]
+    docstr = f'\n    """{evt["description"]}"""\n' if "description" in evt else ''
+
+    props = sorted(evt.get("parameters", []), key=lambda x: x.get("optional", False))
+    dependencies, constructor_args, args = handle_properties(props)
+
+    if args:
+        argcode = '\n        ' + '\n        '.join(args) + "\n\n"
+    else:
+        argcode = " pass"
+
+    return f'''class {name}(ChromeEvent):{docstr}
+    def __init__({", ".join(constructor_args)}):{argcode}
+
+'''
+
 if __name__=="__main__":
     protocol = json.loads(open("protocol.json", ).read())
     for domain in protocol["domains"]:
         name = domain["domain"]
         types = []
         commands = []
+        events = []
         dependencies = set()
         for type_ in domain.get("types", []):
             if "enum" in type_: types.append(enum(type_))
@@ -138,11 +156,14 @@ if __name__=="__main__":
         for cmd in domain.get("commands", []):
             commands.append(command(cmd, domain["domain"]))
 
+        for evt in domain.get("events", []):
+            events.append(event(evt, domain["domain"]))
+
         mod = open(f"chrome_control/{name}.py", 'w')
         mod.write("""from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 """)
 
@@ -154,5 +175,5 @@ from .base import ChromeCommand
         #       in the source file above type A
         mod.write('\n')
         mod.write(''.join(types))
-
         mod.write(''.join(commands))
+        mod.write(''.join(events))

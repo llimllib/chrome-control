@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 # Unique script identifier.
@@ -339,6 +339,76 @@ class runScript(ChromeCommand):
         self.generatePreview = generatePreview
         # Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error.
         self.awaitPromise = awaitPromise
+
+
+
+class executionContextCreated(ChromeEvent):
+    """Issued when new execution context is created."""
+
+    def __init__(self, context: "ExecutionContextDescription"):
+        # A newly created execution contex.
+        self.context = context
+
+
+
+class executionContextDestroyed(ChromeEvent):
+    """Issued when execution context is destroyed."""
+
+    def __init__(self, executionContextId: "ExecutionContextId"):
+        # Id of the destroyed context
+        self.executionContextId = executionContextId
+
+
+
+class executionContextsCleared(ChromeEvent):
+    """Issued when all executionContexts were cleared in browser"""
+
+    def __init__(self): pass
+
+class exceptionThrown(ChromeEvent):
+    """Issued when exception was thrown and unhandled."""
+
+    def __init__(self, timestamp: "Timestamp", exceptionDetails: "ExceptionDetails"):
+        # Timestamp of the exception.
+        self.timestamp = timestamp
+        self.exceptionDetails = exceptionDetails
+
+
+
+class exceptionRevoked(ChromeEvent):
+    """Issued when unhandled exception was revoked."""
+
+    def __init__(self, reason: str, exceptionId: int):
+        # Reason describing why exception was revoked.
+        self.reason = reason
+        # The id of revoked exception, as reported in <code>exceptionUnhandled</code>.
+        self.exceptionId = exceptionId
+
+
+
+class consoleAPICalled(ChromeEvent):
+    """Issued when console API was called."""
+
+    def __init__(self, type: str, args: List, executionContextId: "ExecutionContextId", timestamp: "Timestamp", stackTrace: "StackTrace"=None):
+        # Type of the call.
+        self.type = type
+        # Call arguments.
+        self.args = args
+        # Identifier of the context where the call was made.
+        self.executionContextId = executionContextId
+        # Call timestamp.
+        self.timestamp = timestamp
+        # Stack trace captured when the call was made.
+        self.stackTrace = stackTrace
+
+
+
+class inspectRequested(ChromeEvent):
+    """Issued when object should be inspected (for example, as a result of inspect() command line API call)."""
+
+    def __init__(self, object: "RemoteObject", hints: dict):
+        self.object = object
+        self.hints = hints
 
 
 

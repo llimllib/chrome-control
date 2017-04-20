@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 TargetID = str
@@ -137,4 +137,46 @@ class getTargets(ChromeCommand):
     """Retrieves a list of available targets."""
 
     def __init__(self): pass
+
+class targetCreated(ChromeEvent):
+    """Issued when a possible inspection target is created."""
+
+    def __init__(self, targetInfo: "TargetInfo"):
+        self.targetInfo = targetInfo
+
+
+
+class targetDestroyed(ChromeEvent):
+    """Issued when a target is destroyed."""
+
+    def __init__(self, targetId: "TargetID"):
+        self.targetId = targetId
+
+
+
+class attachedToTarget(ChromeEvent):
+    """Issued when attached to target because of auto-attach or <code>attachToTarget</code> command."""
+
+    def __init__(self, targetInfo: "TargetInfo", waitingForDebugger: bool):
+        self.targetInfo = targetInfo
+        self.waitingForDebugger = waitingForDebugger
+
+
+
+class detachedFromTarget(ChromeEvent):
+    """Issued when detached from target for any reason (including <code>detachFromTarget</code> command)."""
+
+    def __init__(self, targetId: "TargetID"):
+        self.targetId = targetId
+
+
+
+class receivedMessageFromTarget(ChromeEvent):
+    """Notifies about new protocol message from attached target."""
+
+    def __init__(self, targetId: "TargetID", message: str):
+        self.targetId = targetId
+        self.message = message
+
+
 

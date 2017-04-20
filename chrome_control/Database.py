@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 # Unique identifier of Database object.
@@ -47,6 +47,12 @@ class executeSQL(ChromeCommand):
     def __init__(self, databaseId: "DatabaseId", query: str):
         self.databaseId = databaseId
         self.query = query
+
+
+
+class addDatabase(ChromeEvent):
+    def __init__(self, database: "Database"):
+        self.database = database
 
 
 

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 StorageType = Enum("StorageType", "appcache cookies file_systems indexeddb local_storage shader_cache websql service_workers cache_storage all")

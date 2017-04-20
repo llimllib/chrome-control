@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Page
 from . import DOM
@@ -451,4 +451,40 @@ class stopRuleUsageTracking(ChromeCommand):
     """The list of rules with an indication of whether these were used"""
 
     def __init__(self): pass
+
+class mediaQueryResultChanged(ChromeEvent):
+    """Fires whenever a MediaQuery result changes (for example, after a browser window has been resized.) The current implementation considers only viewport-dependent media features."""
+
+    def __init__(self): pass
+
+class fontsUpdated(ChromeEvent):
+    """Fires whenever a web font gets loaded."""
+
+    def __init__(self): pass
+
+class styleSheetChanged(ChromeEvent):
+    """Fired whenever a stylesheet is changed as a result of the client operation."""
+
+    def __init__(self, styleSheetId: "StyleSheetId"):
+        self.styleSheetId = styleSheetId
+
+
+
+class styleSheetAdded(ChromeEvent):
+    """Fired whenever an active document stylesheet is added."""
+
+    def __init__(self, header: "CSSStyleSheetHeader"):
+        # Added stylesheet metainfo.
+        self.header = header
+
+
+
+class styleSheetRemoved(ChromeEvent):
+    """Fired whenever an active document stylesheet is removed."""
+
+    def __init__(self, styleSheetId: "StyleSheetId"):
+        # Identifier of the removed stylesheet.
+        self.styleSheetId = styleSheetId
+
+
 

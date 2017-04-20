@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Page
 
@@ -581,6 +581,171 @@ class getHighlightObjectForTest(ChromeCommand):
 
     def __init__(self, nodeId: "NodeId"):
         # Id of the node to get highlight object for.
+        self.nodeId = nodeId
+
+
+
+class documentUpdated(ChromeEvent):
+    """Fired when <code>Document</code> has been totally updated. Node ids are no longer valid."""
+
+    def __init__(self): pass
+
+class inspectNodeRequested(ChromeEvent):
+    """Fired when the node should be inspected. This happens after call to <code>setInspectMode</code>."""
+
+    def __init__(self, backendNodeId: "BackendNodeId"):
+        # Id of the node to inspect.
+        self.backendNodeId = backendNodeId
+
+
+
+class setChildNodes(ChromeEvent):
+    """Fired when backend wants to provide client with the missing DOM structure. This happens upon most of the calls requesting node ids."""
+
+    def __init__(self, parentId: "NodeId", nodes: List):
+        # Parent node id to populate with children.
+        self.parentId = parentId
+        # Child nodes array.
+        self.nodes = nodes
+
+
+
+class attributeModified(ChromeEvent):
+    """Fired when <code>Element</code>'s attribute is modified."""
+
+    def __init__(self, nodeId: "NodeId", name: str, value: str):
+        # Id of the node that has changed.
+        self.nodeId = nodeId
+        # Attribute name.
+        self.name = name
+        # Attribute value.
+        self.value = value
+
+
+
+class attributeRemoved(ChromeEvent):
+    """Fired when <code>Element</code>'s attribute is removed."""
+
+    def __init__(self, nodeId: "NodeId", name: str):
+        # Id of the node that has changed.
+        self.nodeId = nodeId
+        # A ttribute name.
+        self.name = name
+
+
+
+class inlineStyleInvalidated(ChromeEvent):
+    """Fired when <code>Element</code>'s inline style is modified via a CSS property modification."""
+
+    def __init__(self, nodeIds: List):
+        # Ids of the nodes for which the inline styles have been invalidated.
+        self.nodeIds = nodeIds
+
+
+
+class characterDataModified(ChromeEvent):
+    """Mirrors <code>DOMCharacterDataModified</code> event."""
+
+    def __init__(self, nodeId: "NodeId", characterData: str):
+        # Id of the node that has changed.
+        self.nodeId = nodeId
+        # New text value.
+        self.characterData = characterData
+
+
+
+class childNodeCountUpdated(ChromeEvent):
+    """Fired when <code>Container</code>'s child node count has changed."""
+
+    def __init__(self, nodeId: "NodeId", childNodeCount: int):
+        # Id of the node that has changed.
+        self.nodeId = nodeId
+        # New node count.
+        self.childNodeCount = childNodeCount
+
+
+
+class childNodeInserted(ChromeEvent):
+    """Mirrors <code>DOMNodeInserted</code> event."""
+
+    def __init__(self, parentNodeId: "NodeId", previousNodeId: "NodeId", node: "Node"):
+        # Id of the node that has changed.
+        self.parentNodeId = parentNodeId
+        # If of the previous siblint.
+        self.previousNodeId = previousNodeId
+        # Inserted node data.
+        self.node = node
+
+
+
+class childNodeRemoved(ChromeEvent):
+    """Mirrors <code>DOMNodeRemoved</code> event."""
+
+    def __init__(self, parentNodeId: "NodeId", nodeId: "NodeId"):
+        # Parent id.
+        self.parentNodeId = parentNodeId
+        # Id of the node that has been removed.
+        self.nodeId = nodeId
+
+
+
+class shadowRootPushed(ChromeEvent):
+    """Called when shadow root is pushed into the element."""
+
+    def __init__(self, hostId: "NodeId", root: "Node"):
+        # Host element id.
+        self.hostId = hostId
+        # Shadow root.
+        self.root = root
+
+
+
+class shadowRootPopped(ChromeEvent):
+    """Called when shadow root is popped from the element."""
+
+    def __init__(self, hostId: "NodeId", rootId: "NodeId"):
+        # Host element id.
+        self.hostId = hostId
+        # Shadow root id.
+        self.rootId = rootId
+
+
+
+class pseudoElementAdded(ChromeEvent):
+    """Called when a pseudo element is added to an element."""
+
+    def __init__(self, parentId: "NodeId", pseudoElement: "Node"):
+        # Pseudo element's parent element id.
+        self.parentId = parentId
+        # The added pseudo element.
+        self.pseudoElement = pseudoElement
+
+
+
+class pseudoElementRemoved(ChromeEvent):
+    """Called when a pseudo element is removed from an element."""
+
+    def __init__(self, parentId: "NodeId", pseudoElementId: "NodeId"):
+        # Pseudo element's parent element id.
+        self.parentId = parentId
+        # The removed pseudo element id.
+        self.pseudoElementId = pseudoElementId
+
+
+
+class distributedNodesUpdated(ChromeEvent):
+    """Called when distrubution is changed."""
+
+    def __init__(self, insertionPointId: "NodeId", distributedNodes: List):
+        # Insertion point where distrubuted nodes were updated.
+        self.insertionPointId = insertionPointId
+        # Distributed nodes for given insertion point.
+        self.distributedNodes = distributedNodes
+
+
+
+class nodeHighlightRequested(ChromeEvent):
+    def __init__(self, nodeId: "NodeId"):
         self.nodeId = nodeId
 
 

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Runtime
 
@@ -63,4 +63,27 @@ class start(ChromeCommand):
 
 class stop(ChromeCommand):
     def __init__(self): pass
+
+class consoleProfileStarted(ChromeEvent):
+    """Sent when new profile recodring is started using console.profile() call."""
+
+    def __init__(self, id: str, location: "Debugger.Location", title: str=None):
+        self.id = id
+        # Location of console.profile().
+        self.location = location
+        # Profile title passed as an argument to console.profile().
+        self.title = title
+
+
+
+class consoleProfileFinished(ChromeEvent):
+    def __init__(self, id: str, location: "Debugger.Location", profile: "Profile", title: str=None):
+        self.id = id
+        # Location of console.profileEnd().
+        self.location = location
+        self.profile = profile
+        # Profile title passed as an argument to console.profile().
+        self.title = title
+
+
 

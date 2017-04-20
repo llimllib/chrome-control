@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Page
 
@@ -64,6 +64,23 @@ class getApplicationCacheForFrame(ChromeCommand):
     def __init__(self, frameId: "Page.FrameId"):
         # Identifier of the frame containing document whose application cache is retrieved.
         self.frameId = frameId
+
+
+
+class applicationCacheStatusUpdated(ChromeEvent):
+    def __init__(self, frameId: "Page.FrameId", manifestURL: str, status: int):
+        # Identifier of the frame containing document whose application cache updated status.
+        self.frameId = frameId
+        # Manifest URL.
+        self.manifestURL = manifestURL
+        # Updated application cache status.
+        self.status = status
+
+
+
+class networkStateUpdated(ChromeEvent):
+    def __init__(self, isNowOnline: bool):
+        self.isNowOnline = isNowOnline
 
 
 

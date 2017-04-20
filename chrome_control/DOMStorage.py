@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 class StorageId:
@@ -42,6 +42,36 @@ class removeDOMStorageItem(ChromeCommand):
     def __init__(self, storageId: "StorageId", key: str):
         self.storageId = storageId
         self.key = key
+
+
+
+class domStorageItemsCleared(ChromeEvent):
+    def __init__(self, storageId: "StorageId"):
+        self.storageId = storageId
+
+
+
+class domStorageItemRemoved(ChromeEvent):
+    def __init__(self, storageId: "StorageId", key: str):
+        self.storageId = storageId
+        self.key = key
+
+
+
+class domStorageItemAdded(ChromeEvent):
+    def __init__(self, storageId: "StorageId", key: str, newValue: str):
+        self.storageId = storageId
+        self.key = key
+        self.newValue = newValue
+
+
+
+class domStorageItemUpdated(ChromeEvent):
+    def __init__(self, storageId: "StorageId", key: str, oldValue: str, newValue: str):
+        self.storageId = storageId
+        self.key = key
+        self.oldValue = oldValue
+        self.newValue = newValue
 
 
 

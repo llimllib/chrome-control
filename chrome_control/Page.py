@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Network
 
@@ -445,4 +445,161 @@ class getLayoutMetrics(ChromeCommand):
     """Returns metrics relating to the layouting of the page, such as viewport bounds/scale."""
 
     def __init__(self): pass
+
+class domContentEventFired(ChromeEvent):
+    def __init__(self, timestamp: float):
+        self.timestamp = timestamp
+
+
+
+class loadEventFired(ChromeEvent):
+    def __init__(self, timestamp: float):
+        self.timestamp = timestamp
+
+
+
+class frameAttached(ChromeEvent):
+    """Fired when frame has been attached to its parent."""
+
+    def __init__(self, frameId: "FrameId", parentFrameId: "FrameId"):
+        # Id of the frame that has been attached.
+        self.frameId = frameId
+        # Parent frame identifier.
+        self.parentFrameId = parentFrameId
+
+
+
+class frameNavigated(ChromeEvent):
+    """Fired once navigation of the frame has completed. Frame is now associated with the new loader."""
+
+    def __init__(self, frame: "Frame"):
+        # Frame object.
+        self.frame = frame
+
+
+
+class frameDetached(ChromeEvent):
+    """Fired when frame has been detached from its parent."""
+
+    def __init__(self, frameId: "FrameId"):
+        # Id of the frame that has been detached.
+        self.frameId = frameId
+
+
+
+class frameStartedLoading(ChromeEvent):
+    """Fired when frame has started loading."""
+
+    def __init__(self, frameId: "FrameId"):
+        # Id of the frame that has started loading.
+        self.frameId = frameId
+
+
+
+class frameStoppedLoading(ChromeEvent):
+    """Fired when frame has stopped loading."""
+
+    def __init__(self, frameId: "FrameId"):
+        # Id of the frame that has stopped loading.
+        self.frameId = frameId
+
+
+
+class frameScheduledNavigation(ChromeEvent):
+    """Fired when frame schedules a potential navigation."""
+
+    def __init__(self, frameId: "FrameId", delay: float):
+        # Id of the frame that has scheduled a navigation.
+        self.frameId = frameId
+        # Delay (in seconds) until the navigation is scheduled to begin. The navigation is not guaranteed to start.
+        self.delay = delay
+
+
+
+class frameClearedScheduledNavigation(ChromeEvent):
+    """Fired when frame no longer has a scheduled navigation."""
+
+    def __init__(self, frameId: "FrameId"):
+        # Id of the frame that has cleared its scheduled navigation.
+        self.frameId = frameId
+
+
+
+class frameResized(ChromeEvent):
+    def __init__(self): pass
+
+class javascriptDialogOpening(ChromeEvent):
+    """Fired when a JavaScript initiated dialog (alert, confirm, prompt, or onbeforeunload) is about to open."""
+
+    def __init__(self, message: str, type: "DialogType"):
+        # Message that will be displayed by the dialog.
+        self.message = message
+        # Dialog type.
+        self.type = type
+
+
+
+class javascriptDialogClosed(ChromeEvent):
+    """Fired when a JavaScript initiated dialog (alert, confirm, prompt, or onbeforeunload) has been closed."""
+
+    def __init__(self, result: bool):
+        # Whether dialog was confirmed.
+        self.result = result
+
+
+
+class screencastFrame(ChromeEvent):
+    """Compressed image data requested by the <code>startScreencast</code>."""
+
+    def __init__(self, data: str, metadata: "ScreencastFrameMetadata", sessionId: int):
+        # Base64-encoded compressed image.
+        self.data = data
+        # Screencast frame metadata.
+        self.metadata = metadata
+        # Frame number.
+        self.sessionId = sessionId
+
+
+
+class screencastVisibilityChanged(ChromeEvent):
+    """Fired when the page with currently enabled screencast was shown or hidden </code>."""
+
+    def __init__(self, visible: bool):
+        # True if the page is visible.
+        self.visible = visible
+
+
+
+class colorPicked(ChromeEvent):
+    """Fired when a color has been picked."""
+
+    def __init__(self, color: "DOM.RGBA"):
+        # RGBA of the picked color.
+        self.color = color
+
+
+
+class interstitialShown(ChromeEvent):
+    """Fired when interstitial page was shown"""
+
+    def __init__(self): pass
+
+class interstitialHidden(ChromeEvent):
+    """Fired when interstitial page was hidden"""
+
+    def __init__(self): pass
+
+class navigationRequested(ChromeEvent):
+    """Fired when a navigation is started if navigation throttles are enabled.  The navigation will be deferred until processNavigation is called."""
+
+    def __init__(self, isInMainFrame: bool, isRedirect: bool, navigationId: int, url: str):
+        # Whether the navigation is taking place in the main frame or in a subframe.
+        self.isInMainFrame = isInMainFrame
+        # Whether the navigation has encountered a server redirect or not.
+        self.isRedirect = isRedirect
+        self.navigationId = navigationId
+        # URL of requested navigation.
+        self.url = url
+
+
 

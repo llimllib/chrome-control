@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Runtime
 
@@ -293,4 +293,97 @@ class setBlackboxedRanges(ChromeCommand):
         self.positions = positions
 
 
+
+class scriptParsed(ChromeEvent):
+    """Fired when virtual machine parses script. This event is also fired for all known and uncollected scripts upon enabling debugger."""
+
+    def __init__(self, scriptId: "Runtime.ScriptId", url: str, startLine: int, startColumn: int, endLine: int, endColumn: int, executionContextId: "Runtime.ExecutionContextId", hash: str, executionContextAuxData: dict=None, isLiveEdit: bool=None, sourceMapURL: str=None, hasSourceURL: bool=None):
+        # Identifier of the script parsed.
+        self.scriptId = scriptId
+        # URL or name of the script parsed (if any).
+        self.url = url
+        # Line offset of the script within the resource with given URL (for script tags).
+        self.startLine = startLine
+        # Column offset of the script within the resource with given URL.
+        self.startColumn = startColumn
+        # Last line of the script.
+        self.endLine = endLine
+        # Length of the last line of the script.
+        self.endColumn = endColumn
+        # Specifies script creation context.
+        self.executionContextId = executionContextId
+        # Content hash of the script.
+        self.hash = hash
+        # Embedder-specific auxiliary data.
+        self.executionContextAuxData = executionContextAuxData
+        # True, if this script is generated as a result of the live edit operation.
+        self.isLiveEdit = isLiveEdit
+        # URL of source map associated with script (if any).
+        self.sourceMapURL = sourceMapURL
+        # True, if this script has sourceURL.
+        self.hasSourceURL = hasSourceURL
+
+
+
+class scriptFailedToParse(ChromeEvent):
+    """Fired when virtual machine fails to parse the script."""
+
+    def __init__(self, scriptId: "Runtime.ScriptId", url: str, startLine: int, startColumn: int, endLine: int, endColumn: int, executionContextId: "Runtime.ExecutionContextId", hash: str, executionContextAuxData: dict=None, sourceMapURL: str=None, hasSourceURL: bool=None):
+        # Identifier of the script parsed.
+        self.scriptId = scriptId
+        # URL or name of the script parsed (if any).
+        self.url = url
+        # Line offset of the script within the resource with given URL (for script tags).
+        self.startLine = startLine
+        # Column offset of the script within the resource with given URL.
+        self.startColumn = startColumn
+        # Last line of the script.
+        self.endLine = endLine
+        # Length of the last line of the script.
+        self.endColumn = endColumn
+        # Specifies script creation context.
+        self.executionContextId = executionContextId
+        # Content hash of the script.
+        self.hash = hash
+        # Embedder-specific auxiliary data.
+        self.executionContextAuxData = executionContextAuxData
+        # URL of source map associated with script (if any).
+        self.sourceMapURL = sourceMapURL
+        # True, if this script has sourceURL.
+        self.hasSourceURL = hasSourceURL
+
+
+
+class breakpointResolved(ChromeEvent):
+    """Fired when breakpoint is resolved to an actual script and location."""
+
+    def __init__(self, breakpointId: "BreakpointId", location: "Location"):
+        # Breakpoint unique identifier.
+        self.breakpointId = breakpointId
+        # Actual breakpoint location.
+        self.location = location
+
+
+
+class paused(ChromeEvent):
+    """Fired when the virtual machine stopped on breakpoint or exception or any other stop criteria."""
+
+    def __init__(self, callFrames: List, reason: str, data: dict=None, hitBreakpoints: List=None, asyncStackTrace: "Runtime.StackTrace"=None):
+        # Call stack the virtual machine stopped on.
+        self.callFrames = callFrames
+        # Pause reason.
+        self.reason = reason
+        # Object containing break-specific auxiliary properties.
+        self.data = data
+        # Hit breakpoints IDs
+        self.hitBreakpoints = hitBreakpoints
+        # Async stack trace, if any.
+        self.asyncStackTrace = asyncStackTrace
+
+
+
+class resumed(ChromeEvent):
+    """Fired when the virtual machine resumed execution."""
+
+    def __init__(self): pass
 

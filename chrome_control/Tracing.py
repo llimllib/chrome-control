@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 class MemoryDumpConfig: pass
@@ -63,6 +63,34 @@ class recordClockSyncMarker(ChromeCommand):
     def __init__(self, syncId: str):
         # The ID of this clock sync marker
         self.syncId = syncId
+
+
+
+class dataCollected(ChromeEvent):
+    """Contains an bucket of collected trace events. When tracing is stopped collected events will be send as a sequence of dataCollected events followed by tracingComplete event."""
+
+    def __init__(self, value: List):
+        self.value = value
+
+
+
+class tracingComplete(ChromeEvent):
+    """Signals that tracing is stopped and there is no trace buffers pending flush, all data were delivered via dataCollected events."""
+
+    def __init__(self, stream: "IO.StreamHandle"=None):
+        # A handle of the stream that holds resulting trace data.
+        self.stream = stream
+
+
+
+class bufferUsage(ChromeEvent):
+    def __init__(self, percentFull: float=None, eventCount: float=None, value: float=None):
+        # A number in range [0..1] that indicates the used size of event buffer as a fraction of its total size.
+        self.percentFull = percentFull
+        # An approximate number of events in the trace log.
+        self.eventCount = eventCount
+        # A number in range [0..1] that indicates the used size of event buffer as a fraction of its total size.
+        self.value = value
 
 
 

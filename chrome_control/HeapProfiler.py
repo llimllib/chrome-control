@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Runtime
 
@@ -85,4 +85,39 @@ class startSampling(ChromeCommand):
 
 class stopSampling(ChromeCommand):
     def __init__(self): pass
+
+class addHeapSnapshotChunk(ChromeEvent):
+    def __init__(self, chunk: str):
+        self.chunk = chunk
+
+
+
+class resetProfiles(ChromeEvent):
+    def __init__(self): pass
+
+class reportHeapSnapshotProgress(ChromeEvent):
+    def __init__(self, done: int, total: int, finished: bool=None):
+        self.done = done
+        self.total = total
+        self.finished = finished
+
+
+
+class lastSeenObjectId(ChromeEvent):
+    """If heap objects tracking has been started then backend regulary sends a current value for last seen object id and corresponding timestamp. If the were changes in the heap since last event then one or more heapStatsUpdate events will be sent before a new lastSeenObjectId event."""
+
+    def __init__(self, lastSeenObjectId: int, timestamp: float):
+        self.lastSeenObjectId = lastSeenObjectId
+        self.timestamp = timestamp
+
+
+
+class heapStatsUpdate(ChromeEvent):
+    """If heap objects tracking has been started then backend may send update for one or more fragments"""
+
+    def __init__(self, statsUpdate: List):
+        # An array of triplets. Each triplet describes a fragment. The first integer is the fragment index, the second integer is a total count of objects for the fragment, the third integer is a total size of the objects for the fragment.
+        self.statsUpdate = statsUpdate
+
+
 

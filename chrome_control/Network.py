@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Page
 from . import Runtime
@@ -456,6 +456,229 @@ class getCertificate(ChromeCommand):
     def __init__(self, origin: str):
         # Origin to get certificate for.
         self.origin = origin
+
+
+
+class resourceChangedPriority(ChromeEvent):
+    """Fired when resource loading priority is changed"""
+
+    def __init__(self, requestId: "RequestId", newPriority: "ResourcePriority", timestamp: "Timestamp"):
+        # Request identifier.
+        self.requestId = requestId
+        # New priority
+        self.newPriority = newPriority
+        # Timestamp.
+        self.timestamp = timestamp
+
+
+
+class requestWillBeSent(ChromeEvent):
+    """Fired when page is about to send HTTP request."""
+
+    def __init__(self, requestId: "RequestId", frameId: "Page.FrameId", loaderId: "LoaderId", documentURL: str, request: "Request", timestamp: "Timestamp", wallTime: "Timestamp", initiator: "Initiator", redirectResponse: "Response"=None, type: "Page.ResourceType"=None):
+        # Request identifier.
+        self.requestId = requestId
+        # Frame identifier.
+        self.frameId = frameId
+        # Loader identifier.
+        self.loaderId = loaderId
+        # URL of the document this request is loaded for.
+        self.documentURL = documentURL
+        # Request data.
+        self.request = request
+        # Timestamp.
+        self.timestamp = timestamp
+        # UTC Timestamp.
+        self.wallTime = wallTime
+        # Request initiator.
+        self.initiator = initiator
+        # Redirect response data.
+        self.redirectResponse = redirectResponse
+        # Type of this resource.
+        self.type = type
+
+
+
+class requestServedFromCache(ChromeEvent):
+    """Fired if request ended up loading from cache."""
+
+    def __init__(self, requestId: "RequestId"):
+        # Request identifier.
+        self.requestId = requestId
+
+
+
+class responseReceived(ChromeEvent):
+    """Fired when HTTP response is available."""
+
+    def __init__(self, requestId: "RequestId", frameId: "Page.FrameId", loaderId: "LoaderId", timestamp: "Timestamp", type: "Page.ResourceType", response: "Response"):
+        # Request identifier.
+        self.requestId = requestId
+        # Frame identifier.
+        self.frameId = frameId
+        # Loader identifier.
+        self.loaderId = loaderId
+        # Timestamp.
+        self.timestamp = timestamp
+        # Resource type.
+        self.type = type
+        # Response data.
+        self.response = response
+
+
+
+class dataReceived(ChromeEvent):
+    """Fired when data chunk was received over the network."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", dataLength: int, encodedDataLength: int):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # Data chunk length.
+        self.dataLength = dataLength
+        # Actual bytes received (might be less than dataLength for compressed encodings).
+        self.encodedDataLength = encodedDataLength
+
+
+
+class loadingFinished(ChromeEvent):
+    """Fired when HTTP request has finished loading."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", encodedDataLength: float):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # Total number of bytes received for this request.
+        self.encodedDataLength = encodedDataLength
+
+
+
+class loadingFailed(ChromeEvent):
+    """Fired when HTTP request has failed to load."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", type: "Page.ResourceType", errorText: str, canceled: bool=None, blockedReason: "BlockedReason"=None):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # Resource type.
+        self.type = type
+        # User friendly error message.
+        self.errorText = errorText
+        # True if loading was canceled.
+        self.canceled = canceled
+        # The reason why loading was blocked, if any.
+        self.blockedReason = blockedReason
+
+
+
+class webSocketWillSendHandshakeRequest(ChromeEvent):
+    """Fired when WebSocket is about to initiate handshake."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", wallTime: "Timestamp", request: "WebSocketRequest"):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # UTC Timestamp.
+        self.wallTime = wallTime
+        # WebSocket request data.
+        self.request = request
+
+
+
+class webSocketHandshakeResponseReceived(ChromeEvent):
+    """Fired when WebSocket handshake response becomes available."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", response: "WebSocketResponse"):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # WebSocket response data.
+        self.response = response
+
+
+
+class webSocketCreated(ChromeEvent):
+    """Fired upon WebSocket creation."""
+
+    def __init__(self, requestId: "RequestId", url: str, initiator: "Initiator"=None):
+        # Request identifier.
+        self.requestId = requestId
+        # WebSocket request URL.
+        self.url = url
+        # Request initiator.
+        self.initiator = initiator
+
+
+
+class webSocketClosed(ChromeEvent):
+    """Fired when WebSocket is closed."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp"):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+
+
+
+class webSocketFrameReceived(ChromeEvent):
+    """Fired when WebSocket frame is received."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", response: "WebSocketFrame"):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # WebSocket response data.
+        self.response = response
+
+
+
+class webSocketFrameError(ChromeEvent):
+    """Fired when WebSocket frame error occurs."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", errorMessage: str):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # WebSocket frame error message.
+        self.errorMessage = errorMessage
+
+
+
+class webSocketFrameSent(ChromeEvent):
+    """Fired when WebSocket frame is sent."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", response: "WebSocketFrame"):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # WebSocket response data.
+        self.response = response
+
+
+
+class eventSourceMessageReceived(ChromeEvent):
+    """Fired when EventSource message is received."""
+
+    def __init__(self, requestId: "RequestId", timestamp: "Timestamp", eventName: str, eventId: str, data: str):
+        # Request identifier.
+        self.requestId = requestId
+        # Timestamp.
+        self.timestamp = timestamp
+        # Message type.
+        self.eventName = eventName
+        # Message identifier.
+        self.eventId = eventId
+        # Message content.
+        self.data = data
 
 
 

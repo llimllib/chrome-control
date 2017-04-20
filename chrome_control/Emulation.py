@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 
 class ScreenOrientation:
@@ -166,4 +166,9 @@ class setVirtualTimePolicy(ChromeCommand):
         self.budget = budget
 
 
+
+class virtualTimeBudgetExpired(ChromeEvent):
+    """Notification sent after the virual time budget for the current VirtualTimePolicy has run out."""
+
+    def __init__(self): pass
 

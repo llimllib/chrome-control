@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from .base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 from . import Runtime
 from . import Network
@@ -64,4 +64,13 @@ class stopViolationsReport(ChromeCommand):
     """Stop violation reporting."""
 
     def __init__(self): pass
+
+class entryAdded(ChromeEvent):
+    """Issued when new message was logged."""
+
+    def __init__(self, entry: "LogEntry"):
+        # The entry.
+        self.entry = entry
+
+
 
