@@ -2,7 +2,7 @@ import asyncio
 import json
 import requests
 import websockets
-from chrome_control.base import ChromeCommand
+from .base import ChromeCommand, ChromeEvent
 
 class ObjectEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -53,6 +53,9 @@ class Tab:
     async def close(self):
         self.ws.close()
         self.event_loop.close()
+
+    async def wait(self, evt: ChromeEvent):
+        pass
 
     async def do(self, cmd: ChromeCommand):
         method = f'{cmd.__module__}.{cmd.__class__.__name__}'
