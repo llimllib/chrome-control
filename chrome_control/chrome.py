@@ -64,7 +64,7 @@ class Tab:
                 pending,
                 return_when=asyncio.FIRST_COMPLETED)
 
-    async def wait(self, evt: type):
+    def wait(self, evt: type):
         # TODO: raise exception if this is called with an instance of a ChromeEvent instead of
         #       a ChromeEvent type
         evtname = f'{evt.__module__}.{evt.__name__}'
