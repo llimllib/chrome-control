@@ -45,6 +45,7 @@ class Tab:
             if "id" in res:
                 fut = self.commands.get(res["id"])
                 if fut:
+                    print(f'resolving {res["id"]}')
                     fut.set_result(res)
             else:
                 if res["method"] in self.event_listeners:
@@ -65,8 +66,9 @@ class Tab:
                 return_when=asyncio.FIRST_COMPLETED)
 
     def wait(self, evt: type):
-        # TODO: raise exception if this is called with an instance of a ChromeEvent instead of
-        #       a ChromeEvent type
+        if not isinstance(evt, type) or not ChromeEvent in evt.mro():
+            raise TypeError("the object to wait on must be a ChromeEvent type, not an instance")
+
         evtname = f'{evt.__module__}.{evt.__name__}'
         # XXX: can multiple tasks be listening on the same future? I'm assuming yes
         #      but I have no idea
@@ -94,7 +96,7 @@ class Tab:
 
         if self.debug:
             print("sending msg: ", msg)
-        # TODO: return a future that lets the returner wait until this is received?
+
         res = await self.ws.send(msg)
 
         return (res, fut)

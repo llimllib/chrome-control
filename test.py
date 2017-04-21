@@ -1,4 +1,5 @@
 import asyncio
+import json
 import time
 
 from chrome_control import Chrome, Page, Runtime
@@ -15,13 +16,13 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 async def test(tab):
-    # This should only be considered successful if Page.enable() has
-    # completed its round-trip to Chrome
     await tab.do(Page.enable())
     await tab.do(Page.navigate("http://adhocteam.us/our-team"))
     await tab.wait(Page.loadEventFired)
     script = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
-    await tab.do(Runtime.evaluate(script, returnByValue=True))
+    _, fut = await tab.do(Runtime.evaluate(script, returnByValue=True))
+    res = json.loads(await fut)
+    print(res)
 
 tab = chrome.Tab()
 event_loop = asyncio.get_event_loop()
