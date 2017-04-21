@@ -18,6 +18,8 @@ class Tab:
         self.client_queue = []
         self.server_queue = []
         self.cmdidx = 0
+        self.commands = {}
+        self.event_listeners = {}
 
         # is this documented anywhere? I had to find this from reading node code
         # https://github.com/cyrus-and/chrome-remote-interface/blob/2a85a87574053f4ef48d17ac1ac03b7513310336/lib/devtools.js#L65
@@ -37,7 +39,17 @@ class Tab:
 
     async def _server(self, ws):
         while 1:
-            res = await ws.recv()
+            res = json.loads(await ws.recv())
+            # We'll assume that if there's an id in res, that it's a command response.
+            # if not, we'll assume it's an event
+            if "id" in res:
+                fut = self.commands.get(res["id"])
+                if fut:
+                    fut.set_result(res)
+            else:
+                if res["method"] in self.event_listeners:
+                    self.event_listeners[res["method"]].set_result(res)
+                    print("fired future", self.event_listeners[res["method"]])
 
     async def run(self, *tests):
         self.client_queue = list(tests)
@@ -45,17 +57,26 @@ class Tab:
         client_task = asyncio.ensure_future(self._client(self.ws))
         server_task = asyncio.ensure_future(self._server(self.ws))
         while 1:
+            # XXX: eventually we will want this to finish, but for now
+            #      just run it forever
             pending = [client_task, server_task]
             completed, pending = await asyncio.wait(
                 pending,
                 return_when=asyncio.FIRST_COMPLETED)
 
-    async def close(self):
-        self.ws.close()
-        self.event_loop.close()
-
-    async def wait(self, evt: ChromeEvent):
-        pass
+    async def wait(self, evt: type):
+        # TODO: raise exception if this is called with an instance of a ChromeEvent instead of
+        #       a ChromeEvent type
+        evtname = f'{evt.__module__}.{evt.__name__}'
+        # XXX: can multiple tasks be listening on the same future? I'm assuming yes
+        #      but I have no idea
+        if evtname in self.event_listeners:
+            return self.event_listeners[evtname]
+        else:
+            fut = asyncio.Future()
+            self.event_listeners[evtname] = fut
+            print("returning future")
+            return fut
 
     async def do(self, cmd: ChromeCommand):
         method = f'{cmd.__module__}.{cmd.__class__.__name__}'
@@ -66,6 +87,9 @@ class Tab:
             "params": cmd
         }, cls=ObjectEncoder)
 
+        fut = asyncio.Future()
+        self.commands[self.cmdidx] = fut
+
         self.cmdidx += 1
 
         if self.debug:
@@ -73,4 +97,4 @@ class Tab:
         # TODO: return a future that lets the returner wait until this is received?
         res = await self.ws.send(msg)
 
-        return res
+        return (res, fut)

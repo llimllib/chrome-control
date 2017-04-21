@@ -19,10 +19,9 @@ async def test(tab):
     # completed its round-trip to Chrome
     await tab.do(Page.enable())
     await tab.do(Page.navigate("http://adhocteam.us/our-team"))
-    await tab.wait(Page.loadEventFired)
+    await (await tab.wait(Page.loadEventFired))
     script = '[].map.call(document.querySelectorAll("h3.centered"), n => n.textContent)'
-    await tab.do(Runtime.evaluate(script))
-    await tab.close()
+    await tab.do(Runtime.evaluate(script, returnByValue=True))
 
 tab = chrome.Tab()
 event_loop = asyncio.get_event_loop()
