@@ -1,8 +1,6 @@
 import time
 
-from chrome import Chrome
-import Page
-import Runtime
+from chrome_control import Chrome, Page, Runtime
 
 c = Chrome()
 c.do(Page.navigate("http://adhocteam.us/our-team"))

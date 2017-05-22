@@ -4,7 +4,7 @@ import json
 def enum(type_):
     if type_["type"] == "string":
         return f'''{type_["id"]} = Enum("{type_["id"]}", "{" ".join(type_["enum"])}")
-{type_["id"]}.__doc__ = "{type_.get("description", "")}"
+{type_["id"]}.__doc__ = """{type_.get("description", "")}"""
 
 '''
     else:
@@ -138,16 +138,16 @@ if __name__=="__main__":
         for cmd in domain.get("commands", []):
             commands.append(command(cmd, domain["domain"]))
 
-        mod = open(f"{name}.py", 'w')
+        mod = open(f"chrome_control/{name}.py", 'w')
         mod.write("""from enum import Enum
 from typing import Any, List
 
-from base import ChromeCommand
+from .base import ChromeCommand
 
 """)
 
         for dep in dependencies:
-            mod.write(f'import {dep}\n')
+            mod.write(f'from . import {dep}\n')
 
         # TODO: objects have to be defined before being referenced fffuuuuu
         #       so if class A has a parameter of type B, type B must appear
