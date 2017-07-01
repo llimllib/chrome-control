@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 
-from chrome_control import Chrome, Page, Runtime
+from chrome_control import Tab, Page, Runtime
 
 # enable websockets debugging
 import logging
@@ -24,7 +24,7 @@ async def test(tab):
     res = json.loads(await fut)
     print(res)
 
-tab = chrome.Tab()
+tab = Tab()
 event_loop = asyncio.get_event_loop()
 try:
     event_loop.run_until_complete(tab.run(test))
