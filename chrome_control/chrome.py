@@ -65,11 +65,17 @@ class Tab:
                 pending,
                 return_when=asyncio.FIRST_COMPLETED)
 
+    @staticmethod
+    def methodname(obj):
+        module = obj.__module__.split('.')[-1]
+        method = obj.__class__.__name__
+        return f'{module}.{method}'
+
     def wait(self, evt: type):
         if not isinstance(evt, type) or not ChromeEvent in evt.mro():
             raise TypeError("the object to wait on must be a ChromeEvent type, not an instance")
 
-        evtname = f'{evt.__module__}.{evt.__name__}'
+        evtname = Tab.methodname(evt)
         # XXX: can multiple tasks be listening on the same future? I'm assuming yes
         #      but I have no idea
         if evtname in self.event_listeners:
@@ -81,7 +87,7 @@ class Tab:
             return fut
 
     async def do(self, cmd: ChromeCommand):
-        method = f'{cmd.__module__}.{cmd.__class__.__name__}'
+        method = Tab.methodname(cmd)
 
         msg = json.dumps({
             "id": self.cmdidx,
