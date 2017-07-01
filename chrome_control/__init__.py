@@ -1,4 +1,4 @@
-from .chrome import Chrome
+from .chrome import Tab
 from . import Accessibility
 from . import Animation
 from . import ApplicationCache
